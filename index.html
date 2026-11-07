@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ficha de Treino</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Treino">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#000;--sf:#111;--pr:#0078D7;--ok:#107C10;--tx:#fff;--mu:#a0a0a0;--bd:#262626}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 calc(110px + env(safe-area-inset-bottom))}
+.app{max-width:600px;margin:0 auto;padding:16px}
+:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:var(--sf);border:1px solid var(--bd);color:var(--mu);padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;border-radius:0}
+.tab[aria-selected=true]{background:var(--pr);border-color:var(--pr);color:var(--tx)}
+.prog{display:flex;justify-content:space-between;font-size:14px;color:var(--mu);font-weight:600;margin-bottom:8px}
+.bar{height:4px;background:var(--bd);margin-bottom:16px}
+.bar i{display:block;height:100%;width:0;background:var(--pr);transition:width .3s}
+.list{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--sf);padding:16px;border:1px solid var(--bd);border-left:4px solid var(--bd);transition:opacity .3s,transform .3s}
+.card.complete{border-left-color:var(--ok)}
+.list.has-active .card{opacity:.4;transform:scale(.98)}
+.list.has-active .card.active{opacity:1;transform:none;border-left-color:var(--pr);background:#1a1a1a}
+.head{display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer}
+.ttl{display:flex;flex-direction:column;gap:4px;padding-right:12px}
+.ttl h3{font-size:22px;line-height:1.15;letter-spacing:-.4px}
+.meta{font-size:13px;color:var(--mu);font-weight:600}
+.hint{align-self:flex-start;font-size:12px;font-weight:700;color:#4ade80;border:1px solid rgba(16,124,16,.6);padding:2px 6px}
+.rest{background:transparent;border:2px solid var(--bd);color:var(--tx);padding:8px 12px;font-size:14px;font-weight:700;cursor:pointer;border-radius:0}
+.rest:active{background:rgba(255,255,255,.1)}
+.glance{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.badge{font-size:13px;padding:4px 8px;background:#222;color:#aaa;font-weight:600;border:1px solid #333}
+.badge.done{background:rgba(16,124,16,.2);color:#4ade80;border-color:rgba(16,124,16,.5)}
+.active .glance{display:none}
+.body{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--bd)}
+.active .body{display:block}
+.last{font-size:13px;color:var(--mu);margin-bottom:12px}
+.set{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);padding:8px 12px;margin-bottom:8px}
+.set label{display:flex;align-items:center;gap:12px;flex:1;font-size:18px;font-weight:600;cursor:pointer}
+input[type=checkbox]{width:26px;height:26px;accent-color:var(--ok)}
+.in{width:76px;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:8px;font-size:16px;text-align:center;font-weight:700;border-radius:0}
+.in:focus{outline:none;border-color:var(--pr)}
+.fin{width:100%;margin-top:20px;background:var(--pr);color:var(--tx);border:0;padding:16px;font-size:16px;font-weight:700;cursor:pointer;border-radius:0}
+.rule{background:var(--sf);padding:20px;margin-bottom:16px;border:1px solid var(--bd)}
+.rule h3{margin-bottom:12px;color:var(--pr);font-size:20px}
+.rule ul{padding-left:20px;color:#ccc}
+.rule li{margin-bottom:10px;font-size:15px;line-height:1.5}
+.row{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;background:transparent;border:2px solid var(--pr);color:var(--tx);padding:12px;font-weight:700;font-size:15px;cursor:pointer;border-radius:0}
+#timer{position:fixed;left:0;right:0;bottom:0;background:var(--pr);padding:16px 24px calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;box-shadow:0 -4px 20px rgba(0,0,0,.8);transform:translateY(110%);transition:transform .35s;z-index:10}
+#timer.on{transform:none}
+#timer.done{background:var(--ok)}
+#tlab{display:block;font-size:12px;font-weight:700;opacity:.85}
+#tdisp{font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:2px}
+.tc button{background:rgba(0,0,0,.3);border:0;color:#fff;font-size:14px;font-weight:700;margin-left:8px;padding:10px 14px;cursor:pointer;border-radius:0}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));background:#222;border:1px solid #444;padding:12px 16px;font-size:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <main id="view"></main>
+</div>
+<div id="timer" role="timer">
+  <div><span id="tlab">Descanso</span><span id="tdisp">0:00</span></div>
+  <div class="tc"><button id="tadd">+30s</button><button id="ttog">Pausar</button><button id="tx" aria-label="Fechar timer">X</button></div>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+// [nome, séries, reps, descanso (s), sufixo opcional]
+const PLAN={
+ua:{nome:'UPPER A',ex:[['Rosca direta',3,'8-10',90],['Supino reto',4,'6-8',150],['Barra fixa ou puxada pronada',4,'6-10',150],['Supino inclinado com halteres',3,'8-10',150],['Remada baixa ou cavalinho',3,'8-10',150],['Elevação lateral',3,'12-15',90],['Tríceps corda',2,'10-12',90],['Crucifixo máquina',3,'10-12',60]]},
+la:{nome:'LOWER A',ex:[['Agachamento',4,'6-8',150],['Leg press',3,'10-12',150],['Hip thrust',3,'8-10',150],['Mesa flexora',3,'10-12',90],['Panturrilha em pé',4,'12-15',90],['Crunch na polia',3,'10-15',90],['Rosca de punho',3,'12-15',60]]},
+ub:{nome:'UPPER B',ex:[['Rosca martelo',3,'10-12',90],['Supino inclinado',4,'6-8',150],['Remada curvada',4,'6-8',150],['Puxada neutra',3,'10-12',150],['Desenvolvimento na máquina',3,'8-10',150],['Elevação lateral',3,'12-15',90],['Face pull',2,'12-15',90],['Tríceps francês',2,'10-12',90],['Crucifixo máquina',3,'10-12',60]]},
+lb:{nome:'LOWER B',ex:[['Terra romeno',3,'8-10',150],['Hack squat',3,'8-10',150],['Búlgaro ou avanço',2,'8-10',150,' / perna'],['Extensora',2,'12-15',90],['Mesa flexora',3,'10-12',90],['Panturrilha sentada',4,'12-15',90],['Crunch na polia',3,'12-15',90],['Rosca inversa ou extensão',3,'10-12',60]]}
+};
+const KEY='ficha:v2',$=s=>document.querySelector(s);
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const top=r=>parseInt(r.split('-').pop());
+
+/* ---------- dados ---------- */
+function migrate(){ // aproveita pesos e checks da versão antiga
+  const d={v:2,cur:{},hist:[],tab:'ua'};
+  try{for(const[k,day]of Object.entries(PLAN))day.ex.forEach((e,i)=>{
+    const id=`${k}-ex${i+1}`,s=[];let any=false;
+    for(let n=1;n<=e[1];n++){const w=localStorage.getItem(`${id}-w${n}`)||'',c=localStorage.getItem(`${id}-s${n}`)==='true';if(w||c)any=true;s.push({w,r:'',d:c})}
+    if(any)d.cur[id]=s});}catch(x){}
+  return d}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.v===2)return d}catch(e){}return migrate()}
+let db=load(),tab=PLAN[db.tab]||db.tab==='x'?db.tab:'ua';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
+function sets(id,n){return db.cur[id]=db.cur[id]||Array.from({length:n},()=>({w:'',r:'',d:false}))}
+function last(id){for(let i=db.hist.length-1;i>=0;i--){const x=db.hist[i].ex[id];if(x&&x.length)return x}return null}
+
+/* ---------- telas ---------- */
+function card(k,i,e){
+  const id=`${k}-ex${i+1}`,s=sets(id,e[1]),L=last(id);
+  return `<article class="card" data-id="${id}" data-d="${e[3]}">
+  <div class="head" role="button" tabindex="0" aria-expanded="false"><div class="ttl"><h3>${i+1}. ${e[0]}</h3><span class="meta">${e[1]}x${e[2]}${e[4]||''}</span><span class="hint" hidden>Suba a carga</span></div><button class="rest" data-sec="${e[3]}">⏱ ${fmt(e[3])}</button></div>
+  <div class="glance"></div>
+  <div class="body"><p class="last"></p>${s.map((x,j)=>`<div class="set"><label><input type="checkbox" data-i="${j}" ${x.d?'checked':''}> S${j+1}</label>
+  <input class="in" type="number" inputmode="decimal" step="any" data-k="w" data-i="${j}" value="${x.w}" placeholder="${(L&&L[j]&&L[j].w)||'kg'}" aria-label="Carga da série ${j+1}">
+  <input class="in" type="number" inputmode="numeric" data-k="r" data-i="${j}" value="${x.r}" placeholder="${e[2]}" aria-label="Repetições da série ${j+1}"></div>`).join('')}</div></article>`}
+function day(k){return `<div class="prog"><span id="pt"></span><span>${PLAN[k].nome}</span></div><div class="bar"><i id="pb"></i></div>
+  <div class="list" id="list">${PLAN[k].ex.map((e,i)=>card(k,i,e)).join('')}</div><button class="fin" id="fin">Finalizar treino</button>`}
+function extras(){
+  const h=db.hist.slice(-8).reverse().map(x=>`<li>${new Date(x.t).toLocaleDateString('pt-BR')}: ${PLAN[x.day].nome}, ${Object.values(x.ex).flat().filter(s=>s.d).length} séries</li>`).join('')||'<li>Nenhum treino finalizado ainda.</li>';
+  return `<div class="rule"><h3>Regras gerais</h3><ul>
+<li><strong>Esforço:</strong> compostos com 1-3 RIR. Isoladores e máquinas com 0-1 RIR na última série.</li>
+<li><strong>Descanso:</strong> 2-3 min nos compostos, 1-2 min nos isoladores.</li>
+<li><strong>Aquecimento:</strong> 1-2 séries leves. A caminhada até a academia serve de geral.</li>
+<li><strong>Progressão:</strong> topo das repetições em todas as séries = aumente a carga. O aviso aparece no exercício.</li>
+<li><strong>Deload:</strong> a cada 8-10 semanas, ou se cargas caírem/sono piorar.</li></ul></div>
+<div class="rule"><h3>Cardio diário</h3><ul>
+<li><strong>Dias de treino:</strong> a caminhada (ida/volta ~30m) conta. +10-15m leve pós-treino opcional.</li>
+<li><strong>Descanso:</strong> 30-40 min de caminhada rápida ou bike leve.</li>
+<li><strong>Intensidade:</strong> leve a moderada. Sempre depois da musculação.</li></ul></div>
+<div class="rule"><h3>Histórico</h3><ul>${h}</ul></div>
+<div class="rule"><h3>Backup</h3><ul><li>Os dados ficam só neste aparelho. Exporte de vez em quando.</li></ul>
+<div class="row"><button class="btn" id="exp">Exportar</button><button class="btn" id="imp">Importar</button></div><input id="impf" type="file" accept="application/json" hidden></div>`}
+function render(){
+  $('#tabs').innerHTML=[...Object.entries(PLAN),['x',{nome:'EXTRAS'}]].map(([k,d])=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}">${d.nome}</button>`).join('');
+  db.tab=tab;save();
+  $('#view').innerHTML=tab==='x'?extras():day(tab);
+  if(tab!=='x'){PLAN[tab].ex.forEach((_,i)=>refresh(`${tab}-ex${i+1}`));prog()}}
+function refresh(id){
+  const c=document.querySelector(`[data-id="${id}"]`);if(!c)return;
+  const k=id.split('-')[0],e=PLAN[k].ex[+id.split('ex')[1]-1],s=db.cur[id],L=last(id);
+  c.querySelector('.glance').innerHTML=s.map(x=>`<span class="badge${x.d?' done':''}">${x.d?'✓ ':''}${x.w?x.w+'kg':'--'}${x.r?' x'+x.r:''}</span>`).join('');
+  c.querySelector('.last').textContent=L?'Última vez: '+L.filter(x=>x.d).map(x=>(x.w||'--')+'kg x '+(x.r||'--')).join(', '):'Sem treino anterior.';
+  c.querySelector('.hint').hidden=!(L&&L.length>=e[1]&&L.every(x=>x.d&&+x.r>=top(e[2])));
+  c.classList.toggle('complete',s.every(x=>x.d))}
+function prog(){
+  const l=PLAN[tab].ex,n=l.filter((_,i)=>db.cur[`${tab}-ex${i+1}`].every(x=>x.d)).length;
+  $('#pt').textContent=`${n}/${l.length} exercícios`;$('#pb').style.width=(n/l.length*100)+'%'}
+function setActive(card){
+  const list=$('#list'),was=card.classList.contains('active');
+  list.querySelectorAll('.card').forEach(c=>{c.classList.remove('active');c.querySelector('.head').setAttribute('aria-expanded','false')});
+  if(was){list.classList.remove('has-active');return}
+  card.classList.add('active');card.querySelector('.head').setAttribute('aria-expanded','true');
+  list.classList.add('has-active');card.scrollIntoView({behavior:'smooth',block:'center'})}
+function advance(c){
+  const all=[...document.querySelectorAll('.card')],i=all.indexOf(c);
+  const nx=all.slice(i+1).concat(all.slice(0,i)).find(x=>!x.classList.contains('complete'));
+  if(nx)setActive(nx);else{setActive(c);$('#fin').scrollIntoView({behavior:'smooth',block:'center'})}}
+function finish(){
+  const ex={};let n=0;
+  PLAN[tab].ex.forEach((_,i)=>{const id=`${tab}-ex${i+1}`,s=db.cur[id],d=s.filter(x=>x.d).length;if(d){ex[id]=s.map(x=>({w:x.w,r:x.r,d:x.d}));n+=d}});
+  if(!n)return toast('Marque ao menos uma série antes de finalizar.');
+  if(!confirm(`Arquivar ${n} séries e limpar o ${PLAN[tab].nome}?`))return;
+  db.hist.push({t:Date.now(),day:tab,ex});db.hist=db.hist.slice(-300);
+  PLAN[tab].ex.forEach((_,i)=>delete db.cur[`${tab}-ex${i+1}`]);
+  save();render();window.scrollTo(0,0);toast('Treino salvo no histórico.')}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target,tb=t.closest('[data-tab]');
+  if(tb){tab=tb.dataset.tab;render();return}
+  const r=t.closest('.rest');if(r){startTimer(+r.dataset.sec);return}
+  const h=t.closest('.head');if(h){setActive(h.parentElement);return}
+  if(t.id==='fin')finish();
+  if(t.id==='exp')exportar();
+  if(t.id==='imp')$('#impf').click()});
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('head')){e.preventDefault();setActive(e.target.parentElement)}});
+document.addEventListener('input',e=>{
+  const el=e.target,c=el.closest('.card');if(!c||!el.dataset.k)return;
+  db.cur[c.dataset.id][+el.dataset.i][el.dataset.k]=el.value;save();refresh(c.dataset.id)});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.id==='impf')return importar(el.files[0]);
+  const c=el.closest('.card');if(!c||el.type!=='checkbox')return;
+  const id=c.dataset.id,i=+el.dataset.i,s=db.cur[id],L=last(id);
+  s[i].d=el.checked;
+  if(el.checked){
+    if(!s[i].w){const w=(i&&s[i-1].w)||(L&&L[i]&&L[i].w)||'';if(w){s[i].w=w;c.querySelector(`[data-k=w][data-i="${i}"]`).value=w}}
+    startTimer(+c.dataset.d);wake()}
+  save();refresh(id);prog();
+  if(el.checked&&s.every(x=>x.d))setTimeout(()=>advance(c),600)});
+
+/* ---------- backup ---------- */
+function exportar(){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));
+  a.download=`ficha-treino-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function importar(f){
+  if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(d.v!==2||!Array.isArray(d.hist)||typeof d.cur!=='object')throw 0;
+    if(!confirm('Substituir os dados atuais pelo backup?'))return;
+    db=d;tab='x';save();render();toast('Backup importado.')}catch(x){toast('Arquivo de backup inválido.')}};
+  r.readAsText(f)}
+
+/* ---------- timer (baseado em horário, não em contagem) ---------- */
+let end=0,left=null,tk=null,ctx=null,fired=false,wl=null;
+const bar=$('#timer'),disp=$('#tdisp'),lab=$('#tlab'),tg=$('#ttog');
+const rem=()=>left!=null?left:Math.max(0,Math.ceil((end-Date.now())/1000));
+function draw(){
+  const r=rem();disp.textContent=fmt(r);lab.textContent=r?'Descanso':'Descanso concluído';bar.classList.toggle('done',r===0);
+  if(r===0&&left==null&&!fired){fired=true;alarm()}}
+function startTimer(s){
+  try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();ctx.resume()}catch(e){}
+  end=Date.now()+s*1000;left=null;fired=false;tg.textContent='Pausar';bar.classList.add('on');
+  clearInterval(tk);tk=setInterval(draw,250);draw()}
+function alarm(){
+  if(navigator.vibrate)navigator.vibrate([400,150,400,150,400]);
+  if(!ctx)return;
+  [0,.35,.7].forEach(t=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.2)})}
+$('#tadd').onclick=()=>{if(left!=null)left+=30;else end+=30000;fired=false;draw()};
+tg.onclick=()=>{if(left==null){left=rem();tg.textContent='Retomar'}else{end=Date.now()+left*1000;left=null;tg.textContent='Pausar';fired=false}draw()};
+$('#tx').onclick=()=>{clearInterval(tk);bar.classList.remove('on')};
+async function wake(){try{if('wakeLock'in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(bar.classList.contains('on'))draw();if(db.cur&&Object.values(db.cur).some(s=>s.some(x=>x.d)))wake()}});
+
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2500)}
+
+render();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
