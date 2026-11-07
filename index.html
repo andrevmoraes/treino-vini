@@ -88,7 +88,7 @@ lb:{nome:'LOWER B',ex:[['Terra romeno',3,'8-10',150],['Hack squat',3,'8-10',150]
 };
 const KEY='ficha:v2',$=s=>document.querySelector(s);
 const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-const top=r=>parseInt(r.split('-').pop());
+const minReps=r=>parseInt(r.split('-').pop());
 
 /* ---------- dados ---------- */
 function migrate(){ // aproveita pesos e checks da versão antiga
@@ -140,7 +140,7 @@ function refresh(id){
   const k=id.split('-')[0],e=PLAN[k].ex[+id.split('ex')[1]-1],s=db.cur[id],L=last(id);
   c.querySelector('.glance').innerHTML=s.map(x=>`<span class="badge${x.d?' done':''}">${x.d?'✓ ':''}${x.w?x.w+'kg':'--'}${x.r?' x'+x.r:''}</span>`).join('');
   c.querySelector('.last').textContent=L?'Última vez: '+L.filter(x=>x.d).map(x=>(x.w||'--')+'kg x '+(x.r||'--')).join(', '):'Sem treino anterior.';
-  c.querySelector('.hint').hidden=!(L&&L.length>=e[1]&&L.every(x=>x.d&&+x.r>=top(e[2])));
+  c.querySelector('.hint').hidden=!(L&&L.length>=e[1]&&L.every(x=>x.d&&+x.r>=minReps(e[2])));
   c.classList.toggle('complete',s.every(x=>x.d))}
 function prog(){
   const l=PLAN[tab].ex,n=l.filter((_,i)=>db.cur[`${tab}-ex${i+1}`].every(x=>x.d)).length;
